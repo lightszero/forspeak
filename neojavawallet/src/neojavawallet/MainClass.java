@@ -9,11 +9,14 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -65,6 +68,7 @@ public class MainClass
 			{
 				System.out.println("发送GET请求出现异常！" + e);
 				e.printStackTrace();
+				return null;
 			}
 			// 使用finally块来关闭输入流
 			finally
@@ -117,6 +121,7 @@ public class MainClass
 			{
 				System.out.println("发送 POST 请求出现异常！" + e);
 				e.printStackTrace();
+				return null;
 			}
 			// 使用finally块来关闭输出流、输入流
 			finally
@@ -156,7 +161,7 @@ public class MainClass
 			// this.setLayout(new FlowLayout());
 			this.setLayout(new GridLayout(2, 2, 5, 5));
 			// GridLayout grid =new GridLayout(3,3,5,5);
-
+			this.setTitle("这是一个JAVA实现的轻钱包，使用外部签名机");
 			this.InitPanel01();
 			this.InitPanel02();
 			this.InitPanel03();
@@ -169,6 +174,8 @@ public class MainClass
 		JPanel panel03 = null;// new JPanel();
 		JPanel panel04 = null;// new JPanel();
 
+		String dataBeforeSign="";
+		String dataSigned="";
 		void InitPanel01()
 		{
 			this.panel01 = new JPanel();
@@ -283,14 +290,25 @@ public class MainClass
 							outstr+="address:"+json.get("_id").getAsString()+"\n";
 							outstr+="财产\n";
 							JsonObject balances= json.get("balances").getAsJsonObject();
-							if(balances.has("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b"))
+							
+							Iterator<Entry<String,JsonElement>> it =balances.entrySet().iterator();
+
+							while(it.hasNext())
 							{
-								outstr+="小蚁股:"+balances.get("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b").getAsInt()+"\n";
+								Entry<String,JsonElement> ent =it.next();
+								String key =ent.getKey();
+								
+								if(key.equals("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b"))
+								{
+									outstr+="小蚁股:"+ent.getValue().getAsInt()+"\n";
+								}
+								else if(key.equals("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"))
+								{
+									outstr+="小蚁币:"+ent.getValue().getAsFloat()+"\n";
+								}
+								
 							}
-							if(balances.has("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"))
-							{
-								outstr+="小蚁币:"+balances.get("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7").getAsFloat()+"\n";
-							}
+
 						}
 						area.setText(outstr);
 						
@@ -449,26 +467,370 @@ public class MainClass
 
 		void InitPanel02()
 		{
-			this.panel02 = new JPanel();
-			this.add(panel02);
-			panel02.setBorder(BorderFactory.createTitledBorder("panel02"));
-			panel02.setLayout(new GridLayout(10, 3, 5, 5));
+			JPanel panel =new JPanel();
+			this.panel02 = panel;
+			this.add(panel);
+			panel.setBorder(BorderFactory.createTitledBorder("构造交易"));
+			GridBagLayout layout = new GridBagLayout();
+			
+			TextField tfsrc = new TextField();
+			TextField tfdest = new TextField();
+			TextField tfassetid = new TextField();
+			TextField tfnumber = new TextField();
+			JTextArea area =new JTextArea();
+			panel.setLayout(layout);
+			{// 第一行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("源地址");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					layout.setConstraints(label, s);
+				}
+
+				
+				panel.add(tfsrc);
+				tfsrc.setText("ASJiT56jYKZgTN9FtGvjRenbdBKTZ98QVw");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(tfsrc, s);
+				}
+
+				JPanel empty = new JPanel();
+				panel.add(empty);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(empty, s);
+				}
+			}
+			{// 第二行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("目标地址");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					layout.setConstraints(label, s);
+				}
+
+				
+				panel.add(tfdest);
+				tfdest.setText("AJEhCABbWoKGTQS2rxhUG8Ksda9vsV9Esn");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(tfdest, s);
+				}
+
+				JPanel empty = new JPanel();
+				panel.add(empty);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(empty, s);
+				}
+			}
+			{// 第3行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("资产id");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					layout.setConstraints(label, s);
+				}
+
+				
+				panel.add(tfassetid);
+				tfassetid.setText("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(tfassetid, s);
+				}
+
+				JPanel empty = new JPanel();
+				panel.add(empty);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(empty, s);
+				}
+			}
+			{// 第4行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("资产数量");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					layout.setConstraints(label, s);
+				}
+
+				
+				panel.add(tfnumber);
+				tfnumber.setText("0.1");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(tfnumber, s);
+				}
+
+
+				Button btn = new Button("Button2");
+				panel.add(btn);
+				btn.setLabel("生成");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(btn, s);
+				}
+				
+				btn.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						String param ="source="+tfsrc.getText();
+						param +="&assetId="+tfassetid.getText();
+						param +="&dests=" +tfdest.getText();
+						param +="&amounts=" + tfnumber.getText();
+						String str = HttpTool.sendPost(HttpTool.api + "/transfer",param);
+						JsonParser parse = new JsonParser();
+						JsonObject json = (JsonObject) parse.parse(str);
+						
+						String outstr="error.";
+						if(json.has("transaction"))
+						{
+							outstr=json.get("transaction").getAsString();
+							dataBeforeSign=outstr;	
+						}
+						area.setText(outstr);
+						
+						
+					}
+				});
+			}
+			{//第5行
+				area.setLineWrap(true);
+				panel.add(area);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.gridheight =5;
+					s.weightx=0;
+					s.weighty=1;
+					layout.setConstraints(area, s);
+				}
+			}
 		}
 
 		void InitPanel03()
 		{
-			this.panel03 = new JPanel();
-			this.add(panel03);
-			panel03.setBorder(BorderFactory.createTitledBorder("panel03"));
-			panel03.setLayout(new GridLayout(10, 3, 5, 5));
+			JPanel panel =new JPanel();
+			this.panel03 = panel;
+			this.add(panel);
+			panel.setBorder(BorderFactory.createTitledBorder("签名交易"));
+			
+			GridBagLayout layout = new GridBagLayout();
+
+			panel.setLayout(layout);
+			JTextArea area =new JTextArea();
+			{// 第一行
+				JTextArea label = new JTextArea();
+				panel.add(label);
+				label.setText("因为涉及一些加密签名的算法，JAVA刚学不到72小时，这个步骤我实在是完不成了，所以我直接演示通过外部签名机来进行签名，比如以后的硬件钱包，就是一种外部签名机");
+				label.setLineWrap(true);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(label, s);
+				}
+
+				JPanel empty = new JPanel();
+				panel.add(empty);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(empty, s);
+				}
+			}
+			{
+				JPanel empty = new JPanel();
+				panel.add(empty);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(empty, s);
+				}
+			}
+			TextField tfsrc =new TextField();
+			{// 第2行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("谁来签名");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					layout.setConstraints(label, s);
+				}
+
+				
+				panel.add(tfsrc);
+				tfsrc.setText("ASJiT56jYKZgTN9FtGvjRenbdBKTZ98QVw");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 5;
+					s.weightx=1;
+					layout.setConstraints(tfsrc, s);
+				}
+
+				JButton btn = new JButton();
+				btn.setText("签名");
+				panel.add(btn);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(btn, s);
+					
+					
+					//http://localhost:8080/_api/ver
+				}
+				btn.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						String param ="source="+tfsrc.getText();
+						param +="&data="+ dataBeforeSign;
+						String str= HttpTool.sendPost("http://localhost:8080/_api/sign",param);
+						if(str==null)
+						{
+							area.setText("硬件钱包未插入，请插入");
+							return;
+						}
+						dataSigned=str;
+						area.setText(str);
+						
+						
+					}
+				});
+			}
+			{//第3行
+				area.setLineWrap(true);
+				panel.add(area);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.gridheight =5;
+					s.weightx=0;
+					s.weighty=1;
+					layout.setConstraints(area, s);
+				}
+
+			}
 		}
 
 		void InitPanel04()
 		{
-			this.panel04 = new JPanel();
-			this.add(panel04);
-			panel04.setBorder(BorderFactory.createTitledBorder("panel04"));
-			panel04.setLayout(new GridLayout(10, 3, 5, 5));
+			JPanel panel =new JPanel();
+			this.panel04 = panel;
+			this.add(panel);
+			panel.setBorder(BorderFactory.createTitledBorder("发送交易"));
+			
+			GridBagLayout layout = new GridBagLayout();
+
+			panel.setLayout(layout);
+			JTextArea area =new JTextArea();
+			{// 第1行
+				Label label = new Label();
+				panel.add(label);
+				label.setText("发送");
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 1;
+					s.weightx=1;
+					layout.setConstraints(label, s);
+				}
+
+
+				JButton btn = new JButton();
+				btn.setText("发送交易");
+				panel.add(btn);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.weightx=0;
+					layout.setConstraints(btn, s);
+					
+					
+					//http://localhost:8080/_api/ver
+				}
+				btn.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						String param =dataSigned;
+						String str= HttpTool.sendPost(HttpTool.api +"/broadcast",param);
+						if(str==null)
+						{
+							area.setText("发送交易失败");
+							return;
+						}
+						area.setText(str);
+											
+					}
+				});
+			}
+			{//第2行
+				area.setLineWrap(true);
+				panel.add(area);
+				{
+					GridBagConstraints s = new GridBagConstraints();
+					s.fill = GridBagConstraints.BOTH;
+					s.gridwidth = 0;
+					s.gridheight =5;
+					s.weightx=0;
+					s.weighty=1;
+					layout.setConstraints(area, s);
+				}
+
+			}
 		}
 	}
 
